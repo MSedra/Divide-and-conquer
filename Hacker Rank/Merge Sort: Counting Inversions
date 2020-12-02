@@ -1,0 +1,116 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long ll;
+vector<string> split_string(string);
+
+ll merge(vector<int> &left, vector<int> &right, vector<int> &sorted)
+{
+  int n = left.size(), m = right.size(), i = 0, j = 0;
+  ll res = 0;
+  while (i < n && j < m)
+  {
+    if (left[i] <= right[j])
+      sorted.push_back(left[i++]);
+    else
+      sorted.push_back(right[j++]), res += (n - i);
+  }
+  while (i < n)
+    sorted.push_back(left[i++]);
+  while (j < m)
+    sorted.push_back(right[j++]);
+  return res;
+}
+
+ll solve(int i, int j, vector<int> &vec, vector<int> &sorted)
+{
+  if (i == j)
+  {
+    sorted.push_back(vec[i]);
+    return 0;
+  }
+  int mid = i + (j - i) / 2;
+  ll res = 0;
+  vector<int> left, right;
+  res += solve(i, mid, vec, left);
+  res += solve(mid + 1, j, vec, right);
+  res += merge(left, right, sorted);
+  return res;
+}
+
+long countInversions(vector<int> arr)
+{
+  vector<int> nvec;
+  return solve(0, arr.size() - 1, arr, nvec);
+}
+
+int main()
+{
+  ofstream fout(getenv("OUTPUT_PATH"));
+
+  int t;
+  cin >> t;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+  for (int t_itr = 0; t_itr < t; t_itr++)
+  {
+    int n;
+    cin >> n;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    string arr_temp_temp;
+    getline(cin, arr_temp_temp);
+
+    vector<string> arr_temp = split_string(arr_temp_temp);
+
+    vector<int> arr(n);
+
+    for (int i = 0; i < n; i++)
+    {
+      int arr_item = stoi(arr_temp[i]);
+
+      arr[i] = arr_item;
+    }
+
+    long result = countInversions(arr);
+
+    fout << result << "\n";
+  }
+
+  fout.close();
+
+  return 0;
+}
+
+vector<string> split_string(string input_string)
+{
+  string::iterator new_end = unique(input_string.begin(), input_string.end(), [](const char &x, const char &y) {
+    return x == y and x == ' ';
+  });
+
+  input_string.erase(new_end, input_string.end());
+
+  while (input_string[input_string.length() - 1] == ' ')
+  {
+    input_string.pop_back();
+  }
+
+  vector<string> splits;
+  char delimiter = ' ';
+
+  size_t i = 0;
+  size_t pos = input_string.find(delimiter);
+
+  while (pos != string::npos)
+  {
+    splits.push_back(input_string.substr(i, pos - i));
+
+    i = pos + 1;
+    pos = input_string.find(delimiter, i);
+  }
+
+  splits.push_back(input_string.substr(i, min(pos, input_string.length()) - i + 1));
+
+  return splits;
+}
